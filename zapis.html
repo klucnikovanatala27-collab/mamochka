@@ -1,0 +1,552 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Книжка «Мамочка, не торопись»</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Golos+Text:wght@400;500;600&display=swap">
+<style>
+/* Layout: a stack of school-notebook sheets ("в клетку") on a desk; each sheet = crayon drawing + child's text in blue pen. Deliberately single light look (paper). */
+:root{
+  --desk:#E4EAF1; --paper:#FFFFFF; --grid:#D3E2F2; --margin:#F09AA4; --pen:#1F3FA8; --ink:#2B2B3A;
+  --muted:#5F6680; --red:#E0353D; --tape:rgba(247,197,49,.55); --btn:#1F3FA8; --btn-ink:#FFFFFF;
+  --hand:"Caveat","Comic Sans MS",cursive; --ui:"Golos Text","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+body{background:var(--desk);color:var(--ink);font:16px/1.5 var(--ui)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:24px 60px;display:grid;gap:34px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--paper);border-radius:10px;padding:12px 14px;box-shadow:0 2px 8px rgba(30,50,90,.08)}
+.bar p{margin:0;font-size:.9rem;color:var(--muted);flex:1 1 260px;min-width:0}
+.bar .btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:600 .9rem var(--ui);border-radius:8px;padding:9px 14px;cursor:pointer;border:2px solid var(--btn);background:var(--paper);color:var(--btn)}
+button.main{background:var(--btn);color:var(--btn-ink)}
+button:focus-visible,[contenteditable]:focus-visible{outline:3px solid #F7C531;outline-offset:2px}
+.sheet{position:relative;background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:20px 20px;padding-block:34px 26px;padding-left:58px;padding-right:22px;box-shadow:0 8px 22px rgba(30,50,90,.14);display:grid;gap:14px}
+.sheet:nth-child(odd){transform:rotate(-.5deg)}
+.sheet:nth-child(even){transform:rotate(.45deg)}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:42px;width:2px;background:var(--margin)}
+.sheet::after{content:"";position:absolute;top:-12px;left:50%;width:110px;height:26px;margin-left:-55px;background:var(--tape);transform:rotate(-3deg)}
+.pg{position:absolute;top:8px;right:16px;font:500 1.15rem var(--hand);color:var(--muted)}
+canvas.draw{display:block;width:100%;height:auto;background:#FFFEFB;border:2px solid #E3E8EF;border-radius:4px;cursor:pointer;max-width:100%}
+.text{font:500 1.75rem/1.25 var(--hand);color:var(--pen);margin:0;text-wrap:pretty}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{font-size:.8rem;padding:6px 10px;border-width:1.5px}
+.text .ref{color:var(--red);font-weight:700}
+.quiz{position:relative;display:grid;gap:8px;background:#FFF8E1;border:2px dashed #F7C531;border-radius:10px;padding:12px 14px}
+.quiz .qh{font:700 .78rem var(--ui);letter-spacing:.06em;text-transform:uppercase;color:#B07A00}
+.quiz .q{font:700 1.55rem/1.2 var(--hand);color:var(--ink);margin:0}
+.quiz .opts{display:grid;gap:8px}
+.quiz .opts button{text-align:left;font:600 .95rem/1.3 var(--ui);background:var(--paper)}
+.quiz .opts button.ok{background:#3BAA4A;border-color:#3BAA4A;color:#fff}
+.quiz .opts button.no{background:#FDECEC;border-color:var(--red);color:var(--red)}
+.quiz .fb{font:700 1.4rem/1.25 var(--hand);margin:0}
+.quiz .fb.good{color:#2E8B3E}.quiz .fb.bad{color:var(--red)}
+.quiz.waiting{border-style:solid;border-color:var(--red);box-shadow:0 0 0 4px rgba(224,53,61,.15)}
+.quiz.waiting .qh::after{content:" — жду твой ответ 👇"}
+.quiz button.lq{justify-self:start;font-size:.8rem;padding:5px 10px;border-width:1.5px}
+.qvoice{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font:600 .78rem var(--ui);color:var(--muted);border-top:1px dashed #E8C766;padding-top:8px}
+.qvoice .qv{display:inline-flex;gap:4px}
+.qvoice button{font-size:.75rem;padding:4px 8px;border-width:1.5px}
+.qvoice button.rec{background:var(--red);border-color:var(--red);color:#fff}
+.qhint{font:700 1.25rem/1.25 var(--hand);color:var(--red);margin:0}
+.pop{position:absolute;pointer-events:none;font-size:1.6rem}
+.score{font:700 1.8rem/1.3 var(--hand);color:#2E8B3E;margin:0}
+@media (prefers-reduced-motion:no-preference){
+  .quiz .opts button.no{animation:shake .4s}
+  .pop{animation:pop 1.3s ease-out forwards}
+}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes pop{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),-120px) scale(1.3)}}
+.row button.rec{background:var(--red);border-color:var(--red);color:#fff}
+.row button.del{border-color:#C9CEDB;color:var(--muted)}
+.vlab{display:flex;gap:6px;align-items:center;font:600 .85rem var(--ui);color:var(--muted)}
+.vlab select{font:500 .85rem var(--ui);padding:7px 8px;border:2px solid #C9CEDB;border-radius:8px;background:var(--paper);color:var(--ink);max-width:230px}
+h1{font:700 clamp(2.6rem,9vw,4rem)/1 var(--hand);color:var(--red);margin:0;text-align:center;text-wrap:balance}
+.sub{font:500 1.5rem/1.2 var(--hand);color:var(--pen);text-align:center;margin:0}
+h2{font:700 2.2rem/1.1 var(--hand);color:var(--red);margin:0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.rule{display:grid;gap:4px;align-content:start}
+.rule canvas{cursor:default}
+.rule span{font:500 1.4rem/1.15 var(--hand);color:var(--pen)}
+.who{font:500 1.7rem/1.6 var(--hand);color:var(--pen);margin:0}
+.fill{display:inline-block;min-width:7ch;border-bottom:2px dashed var(--pen);padding-inline:4px;color:var(--ink)}
+.fill:empty::before{content:attr(data-ph);color:#9AA5C4}
+.small{font:400 .85rem/1.45 var(--ui);color:var(--muted);margin:0}
+@media (max-width:520px){.sheet{padding-left:44px;padding-right:14px}.sheet::before{left:30px}.text{font-size:1.5rem}}
+@media (prefers-reduced-motion:reduce){.sheet:nth-child(odd),.sheet:nth-child(even){transform:none}}
+</style>
+
+<div class="wrap" id="book">
+
+<div class="bar">
+  <p>Лучше всего озвучка звучит голосом ребёнка: под каждой страницей есть кнопка «🎙 Записать свой голос». Мультик сам проиграет эти записи. Если записи нет, текст читает компьютер. Самые живые компьютерные голоса есть в браузере Edge: выберите там «Svetlana» или «Dariya» с пометкой Natural.</p>
+  <div class="btns">
+    <button class="main" id="auto" type="button">▶ Показать как мультик</button>
+    <button id="snd" type="button" aria-pressed="true">Звук: включён</button>
+    <label class="vlab" id="vlab">Голос: <select id="voiceSel"></select></label>
+    <button id="saveBtn" type="button">💾 Сохранить книжку с нашим голосом</button>
+  </div>
+</div>
+
+<article class="sheet story" data-scene="cover">
+  <span class="pg">обложка</span>
+  <h1>Мамочка, не торопись!</h1>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: мама и дочка держатся за руки, светит солнце"></canvas>
+  <p class="sub text">Книжка Егора и Алисы про маму Наташу и дорогу</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="rush">
+  <span class="pg">стр. 1</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: мама бежит с сумкой, звенит будильник"></canvas>
+  <p class="text">Привет! Я Егор, мне 10 лет. Это моя сестрёнка Алиса, ей 4 года. А это наша мама Наташа. Она самая быстрая на свете: работа, садик, школа, магазин — всё бегом! <b class="ref">Мамочка, не торопись!</b> Давай пойдём спокойно и вместе.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="red">
+  <span class="pg">стр. 2</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: красный светофор, дочка держит маму за руку и говорит «Стой!»"></canvas>
+  <p class="text">Один раз мама хотела перебежать на красный. А я крепко взял её за руку, и Алиса тоже: <b class="ref">«Мамочка, не торопись!</b> Опоздать не страшно. Из-за двух минут ничего не изменится. Подождём зелёный».</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="green">
+  <span class="pg">стр. 3</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: зелёный свет, мама и дочка идут по зебре"></canvas>
+  <p class="text">Загорелся зелёный. Мы посмотрели налево, потом направо и пошли по зебре: мама, Алиса и я. Медленно. Вместе.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="bus">
+  <span class="pg">стр. 4</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: автобус уезжает от остановки, мама хочет бежать за ним, дочка держит её за руку"></canvas>
+  <p class="text">Ой, наш автобус уезжает! Мама хочет бежать за ним через дорогу. <b class="ref">Мамочка, не торопись!</b> Следующий придёт совсем скоро, а ты у нас одна.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="car">
+  <span class="pg">стр. 5</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: машина, мама за рулём пристёгнута, дочка в автокресле"></canvas>
+  <p class="text">Мы садимся в машину. <b class="ref">Мамочка, не торопись!</b> Сначала пристегни Алису в автокресло — щёлк! Я пристегнусь сам — щёлк! И ты пристегнись — щёлк! Вот теперь поехали.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="phone">
+  <span class="pg">стр. 6</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: руки на руле, звонящий телефон зачёркнут"></canvas>
+  <p class="text">Мама за рулём, а телефон звонит и звонит. <b class="ref">Мамочка, не торопись отвечать!</b> Перезвонишь потом. Нет ничего важнее твоей жизни. И нашей.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="speed">
+  <span class="pg">стр. 7</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: машина едет быстро, стрелка спидометра в красной зоне, знак «40»"></canvas>
+  <p class="text">Мы опаздываем, и мама жмёт на газ. <b class="ref">Мамочка, не торопись!</b> Лучше приехать чуть позже, зато всем вместе и целыми.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="morning">
+  <span class="pg">стр. 8</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: тёмное зимнее утро, дети идут в школу, на руках светятся браслеты, на рюкзаках брелки, машина их видит"></canvas>
+  <p class="text">Зимой утром ещё темно, когда я иду в школу, а Алиса в садик. <b class="ref">Мамочка, не торопись!</b> Надень нам светоотражающие браслеты и повесь брелки на рюкзачки. Тогда нас будет видно издалека.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="night">
+  <span class="pg">стр. 9</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: тёмный вечер, маму в тёмном пальто почти не видно, водитель не замечает"></canvas>
+  <p class="text">А вечером мама идёт с работы одна, в тёмном пальто, и водителям её совсем не видно.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="heart">
+  <span class="pg">стр. 10</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: фары светят на сердечко-светоотражатель на маминой сумке, оно сияет, водитель видит маму"></canvas>
+  <p class="text">Поэтому на День матери мы с Алисой подарим маме сердечко-светоотражатель. Фары светят — и сердечко сияет! Теперь маму видно издалека.</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="home">
+  <span class="pg">стр. 11</span>
+  <canvas class="draw" width="600" height="420" aria-label="Рисунок: дома мама и дочка обнимаются, вокруг сердечки"></canvas>
+  <p class="text"><b class="ref">Мамочка, не торопись.</b> Ты никуда не опоздаешь. Самое главное — чтобы ты всегда возвращалась домой. Мы с Алисой тебя очень любим и ждём!</p>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button><button class="again" type="button">Нарисовать заново</button></div>
+</article>
+
+<article class="sheet story" data-scene="none" data-say="Наши правила для мамы. Ждём зелёный: две минуты ничего не решают. Пристёгиваем всех: детей в кресла, маму ремнём. Телефон за рулём подождёт. В темноте носим светлячки: браслеты, брелки и мамино сердечко. Через дорогу — только по зебре, без бега. Мамочка, не торопись!">
+  <span class="pg">стр. 12</span>
+  <h2>Наши правила для мамы</h2>
+  <div class="rules">
+    <div class="rule"><canvas class="draw mini" data-scene="r0" width="200" height="150" aria-label="Зелёный светофор"></canvas><span>Ждём зелёный: две минуты ничего не решают</span></div>
+    <div class="rule"><canvas class="draw mini" data-scene="r1" width="200" height="150" aria-label="Ребёнок пристёгнут в кресле"></canvas><span>Пристёгиваем всех: детей в кресла, маму ремнём</span></div>
+    <div class="rule"><canvas class="draw mini" data-scene="r2" width="200" height="150" aria-label="Телефон зачёркнут"></canvas><span>Телефон за рулём подождёт</span></div>
+    <div class="rule"><canvas class="draw mini" data-scene="r3" width="200" height="150" aria-label="Светящееся сердечко"></canvas><span>В темноте носим светлячки: браслеты, брелки и сердечко</span></div>
+    <div class="rule"><canvas class="draw mini" data-scene="r4" width="200" height="150" aria-label="Мама и дочка на зебре"></canvas><span>Через дорогу — только по зебре, без бега</span></div>
+  </div>
+  <div class="row"><button class="say" type="button">Прочитать вслух</button></div>
+</article>
+
+<article class="sheet" data-scene="none">
+  <span class="pg">последняя</span>
+  <p class="who">Эту книжку сделали <span class="fill" contenteditable="true" id="fName" data-ph="имя">Егор</span> (10 лет) и <span class="fill" contenteditable="true" id="fAge" data-ph="имя">Алиса</span> (4 года).<br>
+  А помогала мама <span class="fill" contenteditable="true" id="fMom" data-ph="имя мамы">Наташа</span>.</p>
+  <p class="small">Конкурс социальной рекламы Каменской Госавтоинспекции «Мамочка, не торопись!» ко Дню матери. Анимация и озвучка сделаны с помощью компьютера.</p>
+</article>
+
+</div>
+
+<script>
+(()=>{
+const SRC="<!doctype html>"+document.documentElement.outerHTML;
+const PI=Math.PI, clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const INK="#2B2B3A",BLUE="#2F5BD3",RED="#E0353D",YELLOW="#F7C531",ORANGE="#F08A24",PINK="#EE5D9A",GREEN="#3BAA4A",
+  SKIN="#F6C9A6",SKIND="#D9946B",BROWN="#7A4A2A",GRAY="#7C808C",SKYB="#7EC3F0",NAVY="#18214A";
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let D=null;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function R(){return mulberry(D.seed*7919+(D.call++)*104729);}
+function vis(){D.count++;return D.count<=D.limit;}
+function A(base){D.g.globalAlpha=base*D.fade;}
+
+/* crayon primitives */
+function stroke(pts,col,w=4,closed=false){const r=R();if(!vis())return;const g=D.g;const P=closed?pts.concat([pts[0],pts[1]]):pts;
+  g.save();g.strokeStyle=col;g.lineCap="round";g.lineJoin="round";
+  for(let pass=0;pass<2;pass++){A(pass?.45:.85);g.lineWidth=pass?w*.55:w;g.beginPath();
+    for(let i=0;i<P.length-1;i++){const [x1,y1]=P[i],[x2,y2]=P[i+1];const n=Math.max(1,Math.ceil(Math.hypot(x2-x1,y2-y1)/10));
+      for(let k=(i?1:0);k<=n;k++){const t=k/n,x=x1+(x2-x1)*t+(r()-.5)*2.4,y=y1+(y2-y1)*t+(r()-.5)*2.4;if(i===0&&k===0)g.moveTo(x,y);else g.lineTo(x,y);}}
+    g.stroke();}
+  g.restore();}
+function scrib(pts,col,gap=6,alpha=.65){const r=R();if(!vis())return;const g=D.g;g.save();g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.clip();
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;pts.forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);});
+  const hh=y1-y0+8,span=(x1-x0)+hh;g.strokeStyle=col;A(alpha);g.lineWidth=gap*.95;g.lineCap="round";g.lineJoin="round";g.beginPath();let up=true,first=true;
+  for(let d=0;d<=span+gap;d+=gap){const a=[x0+d+(r()-.5)*3,y0-4],b=[x0+d-hh+(r()-.5)*3,y1+4];const [p,q]=up?[a,b]:[b,a];if(first){g.moveTo(p[0],p[1]);first=false;}else g.lineTo(p[0],p[1]);g.lineTo(q[0],q[1]);up=!up;}
+  g.stroke();g.restore();}
+function dotc(x,y,rad,col){R();if(!vis())return;const g=D.g;g.save();A(1);g.fillStyle=col;g.beginPath();g.arc(x,y,rad,0,PI*2);g.fill();g.restore();}
+function label(txt,x,y,size,col,rot=0,align="left"){R();if(!vis())return;const g=D.g;g.save();A(1);g.translate(x,y);g.rotate(rot);g.fillStyle=col;g.font="700 "+size+"px Caveat, 'Comic Sans MS', cursive";g.textAlign=align;g.textBaseline="middle";g.fillText(txt,0,0);g.restore();}
+function glow(x,y,rad,a,col="255,226,90"){R();if(!vis())return;const g=D.g;g.save();const gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,"rgba("+col+","+a+")");gr.addColorStop(1,"rgba("+col+",0)");g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);g.restore();}
+const ell=(cx,cy,rx,ry,n=26)=>Array.from({length:n},(_,i)=>{const a=i/n*PI*2,w=1+.04*Math.sin(i*2.3);return [cx+Math.cos(a)*rx*w,cy+Math.sin(a)*ry*w];});
+const rect=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+const arcP=(cx,cy,rad,a0,a1,n=10)=>Array.from({length:n+1},(_,i)=>{const a=a0+(a1-a0)*i/n;return [cx+Math.cos(a)*rad,cy+Math.sin(a)*rad];});
+const cap=(cx,cy,rad)=>arcP(cx,cy,rad,PI,PI*2,14);
+const heartP=(x,y,rad)=>Array.from({length:32},(_,i)=>{const t=i/32*PI*2;return [x+16*Math.pow(Math.sin(t),3)*rad/16,y-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*rad/16];});
+
+/* things a child draws */
+function heart(x,y,rad,gl=0){
+  if(gl>0){glow(x,y,rad*4.5*gl+rad,.75*Math.min(1,gl));if(gl>.3)for(let i=0;i<8;i++){const a=i*PI/4;stroke([[x+Math.cos(a)*rad*1.5,y+Math.sin(a)*rad*1.5],[x+Math.cos(a)*rad*(1.9+gl),y+Math.sin(a)*rad*(1.9+gl)]],"#FFD84A",3);}}
+  const pts=heartP(x,y,rad);scrib(pts,gl>.5?"#FFD84A":RED,Math.max(3,rad*.3),.85);stroke(pts,RED,2.5,true);}
+function hands(o,sL,sR,L,dl,dr){const eL=o.handL||[sL[0]+Math.cos(o.aL??dl)*L,sL[1]+Math.sin(o.aL??dl)*L];const eR=o.handR||[sR[0]+Math.cos(o.aR??dr)*L,sR[1]+Math.sin(o.aR??dr)*L];return [eL,eR];}
+function bag(e,k,o){const bx=e[0]-13*k,by=e[1]+6*k,bw=26*k,bh=22*k;stroke([e,[bx+4*k,by+2*k]],BROWN,2.5*k);scrib(rect(bx,by,bw,bh),"#B07A4A",4*k,.8);stroke(rect(bx,by,bw,bh),BROWN,2.5*k,true);
+  if(o.heart){const f=D.fade;D.fade=1;stroke([[bx+bw/2,by+bh],[bx+bw/2,by+bh+6*k]],INK,1.5);heart(bx+bw/2,by+bh+16*k,10*k,o.glow||0);D.fade=f;}}
+function mom(x,y,k=1,o={}){const f=D.fade;if(o.dim)D.fade=o.dim;const coat=o.coat||BLUE,sw=o.walk!=null?Math.sin(o.walk)*12*k:0,hip=y-55*k;
+  stroke([[x-10*k,hip],[x-12*k+sw,y]],INK,4*k);stroke([[x+10*k,hip],[x+12*k-sw,y]],INK,4*k);
+  scrib(ell(x-16*k+sw,y-2*k,10*k,5*k),INK,3);scrib(ell(x+16*k-sw,y-2*k,10*k,5*k),INK,3);
+  const body=[[x-12*k,y-135*k],[x+12*k,y-135*k],[x+44*k,hip],[x-44*k,hip]];scrib(body,coat,5*k,.75);stroke(body,coat,3*k,true);
+  dotc(x,y-108*k,2.6*k,INK);dotc(x,y-88*k,2.6*k,INK);dotc(x,y-68*k,2.6*k,INK);
+  const sL=[x-14*k,y-128*k],sR=[x+14*k,y-128*k],[eL,eR]=hands(o,sL,sR,52*k,PI*.68,PI*.32);
+  stroke([sL,eL],coat,7*k);stroke([sR,eR],coat,7*k);dotc(eL[0],eL[1],5*k,SKIN);dotc(eR[0],eR[1],5*k,SKIN);
+  if(o.bag==="L")bag(eL,k,o);if(o.bag==="R")bag(eR,k,o);
+  stroke([[x-14*k,y-134*k],[x+14*k,y-134*k]],RED,7*k);stroke([[x+8*k,y-134*k],[x+13*k,y-110*k]],RED,6*k);
+  const hy=y-160*k;stroke([[x-16*k,hy-14*k],[x-34*k,hy+4*k],[x-30*k,hy+26*k]],BROWN,7*k);
+  scrib(ell(x,hy,21*k,23*k),SKIN,4*k,.7);stroke(ell(x,hy,21*k,23*k),SKIND,2.5*k,true);scrib(cap(x,hy-3*k,23*k),BROWN,4*k,.85);
+  dotc(x-7*k,hy+1*k,2.6*k,INK);dotc(x+7*k,hy+1*k,2.6*k,INK);stroke(arcP(x,hy+7*k,8*k,.15*PI,.85*PI),RED,2.5*k);
+  dotc(x-13*k,hy+9*k,3.5*k,"rgba(238,93,154,.35)");dotc(x+13*k,hy+9*k,3.5*k,"rgba(238,93,154,.35)");
+  if(o.name){D.fade=1;label(o.name,x,y+22,26,INK,0,"center");}D.fade=f;}
+/* kid(): Алиса (4 года) by default; o.boy → Егор (10 лет): jeans, green jacket, blue beanie, no pigtails */
+function kid(x,y,k=1,o={}){const f=D.fade;if(o.dim)D.fade=o.dim;const B=!!o.boy,sw=o.walk!=null?Math.sin(o.walk)*9*k:0,hip=y-(B?44:38)*k,
+  coat=o.coat||(B?"#3BAA4A":YELLOW),line=B?"#2E7D32":ORANGE,acc=B?BLUE:PINK;
+  stroke([[x-7*k,hip],[x-9*k+sw,y]],B?"#2B3A67":INK,(B?6:3.5)*k);stroke([[x+7*k,hip],[x+9*k-sw,y]],B?"#2B3A67":INK,(B?6:3.5)*k);
+  scrib(ell(x-12*k+sw,y-2*k,8*k,4*k),B?INK:"#C2185B",3);scrib(ell(x+12*k-sw,y-2*k,8*k,4*k),B?INK:"#C2185B",3);
+  const body=B?[[x-13*k,y-92*k],[x+13*k,y-92*k],[x+17*k,hip],[x-17*k,hip]]:[[x-10*k,y-92*k],[x+10*k,y-92*k],[x+30*k,hip],[x-30*k,hip]];
+  scrib(body,coat,4*k,.8);stroke(body,line,2.5*k,true);if(B)stroke([[x,y-90*k],[x,hip]],line,1.5*k);
+  const sL=[x-11*k,y-86*k],sR=[x+11*k,y-86*k],[eL,eR]=hands(o,sL,sR,(B?40:36)*k,PI*.7,PI*.3);
+  stroke([sL,eL],coat,6*k);stroke([sR,eR],coat,6*k);dotc(eL[0],eL[1],5*k,B?SKIN:PINK);dotc(eR[0],eR[1],5*k,B?SKIN:PINK);
+  const hy=y-108*k;
+  if(!B){stroke([[x-14*k,hy],[x-26*k,hy+18*k]],ORANGE,6*k);stroke([[x+14*k,hy],[x+26*k,hy+18*k]],ORANGE,6*k);
+    dotc(x-27*k,hy+20*k,4*k,PINK);dotc(x+27*k,hy+20*k,4*k,PINK);}
+  scrib(ell(x,hy,17*k,18*k),SKIN,3.5*k,.7);stroke(ell(x,hy,17*k,18*k),SKIND,2.2*k,true);
+  if(o.hat!==false){scrib(cap(x,hy-4*k,18.5*k),acc,3.5*k,.9);if(B)stroke([[x-19*k,hy-4*k],[x+19*k,hy-4*k]],"#1F3FA8",4*k);else dotc(x,hy-24*k,6*k,PINK);}
+  else scrib(cap(x,hy-3*k,18*k),B?BROWN:ORANGE,3.5*k,.9);
+  dotc(x-6*k,hy+2*k,2.3*k,INK);dotc(x+6*k,hy+2*k,2.3*k,INK);stroke(arcP(x,hy+7*k,6.5*k,.15*PI,.85*PI),RED,2.2*k);
+  if(!B){dotc(x-9*k,hy+7*k,1.4*k,ORANGE);dotc(x+9*k,hy+7*k,1.4*k,ORANGE);}
+  if(o.name){const g=D.fade;D.fade=1;label(o.name,x,y+22,26,INK,0,"center");D.fade=g;}
+  D.fade=f;}
+function sun(x,y,rad,t){for(let i=0;i<10;i++){const a=i*PI/5+t*.4;stroke([[x+Math.cos(a)*rad*1.25,y+Math.sin(a)*rad*1.25],[x+Math.cos(a)*rad*1.7,y+Math.sin(a)*rad*1.7]],ORANGE,4);}
+  scrib(ell(x,y,rad,rad),YELLOW,5,.9);stroke(ell(x,y,rad,rad),ORANGE,3,true);dotc(x-9,y-5,3,INK);dotc(x+9,y-5,3,INK);stroke(arcP(x,y+3,12,.2*PI,.8*PI),RED,3);}
+function sky(){scrib(rect(0,0,600,34),SKYB,7,.55);}
+function grass(y,w=600){const pts=[];for(let x=0;x<=w;x+=30)pts.push([x,y+Math.sin(x*.07)*4]);stroke(pts,GREEN,5);for(let x=20;x<w;x+=46)stroke([[x-6,y-12],[x,y],[x+6,y-14]],GREEN,3);}
+function flower(x,y,col){stroke([[x,y],[x,y-30]],GREEN,3);for(let i=0;i<5;i++){const a=i*PI*2/5;dotc(x+Math.cos(a)*8,y-34+Math.sin(a)*8,6,col);}dotc(x,y-34,5,YELLOW);}
+function road(night){scrib(rect(0,300,600,115),night?"#4A5068":"#A3A7B1",7,.75);stroke([[0,300],[600,300]],night?"#6C7390":"#6F737D",4);
+  for(let i=0;i<5;i++)scrib(rect(235,309+i*21,130,11),"#FFFFFF",4,night?.35:.95);}
+function tlight(x,y,st,t,s=1){stroke([[x,y],[x,y-105*s]],"#4A4F5A",7*s);scrib(rect(x-22*s,y-200*s,44*s,96*s),"#3B3F48",5*s,.9);stroke(rect(x-22*s,y-200*s,44*s,96*s),INK,2.5*s,true);
+  [["red",RED,-178],["yellow",YELLOW,-152],["green",GREEN,-126]].forEach(([k,col,dy])=>{const on=st===k;if(on)glow(x,y+dy*s,34*s,.55+.25*Math.sin(t*4),k==="red"?"224,53,61":k==="green"?"59,170,74":"247,197,49");
+    scrib(ell(x,y+dy*s,11*s,11*s),on?col:"#6B6F7A",3*s,.95);});}
+function car(x,y,s,col,o={}){const g=D.g;g.save();g.translate(x,y);g.scale(o.flip?-s:s,s);
+  if(o.lights){const L=o.lights;scrib([[86,-34],[86+L,-34-L*.72],[86+L,-34+L*.1]],"#FFE66B",8,.42);}
+  const body=[[-90,-18],[-92,-52],[-52,-58],[-32,-92],[34,-92],[56,-58],[90,-52],[92,-18]];scrib(body,col,6,.8);stroke(body,INK,2.5,true);
+  scrib([[-46,-60],[-29,-84],[-4,-84],[-4,-60]],"#BFE3FA",4,.9);scrib([[4,-60],[4,-84],[30,-84],[48,-60]],"#BFE3FA",4,.9);
+  if(o.people){scrib(rect(-44,-80,38,22),"#8C93A8",3,.9);
+    scrib(ell(-35,-68,7,8),SKIN,3,.8);scrib(cap(-35,-70,8),PINK,3,.9);dotc(-37,-67,1.2,INK);dotc(-33,-67,1.2,INK);stroke([[-42,-62],[-28,-58]],INK,2);
+    scrib(ell(-16,-72,9,10),SKIN,3,.8);scrib(cap(-16,-74,10),BLUE,3,.9);dotc(-19,-71,1.4,INK);dotc(-13,-71,1.4,INK);stroke([[-25,-64],[-8,-59]],INK,2.5);scrib(ell(24,-72,10,11),SKIN,3,.8);scrib(cap(24,-74,11),BROWN,3,.9);dotc(21,-71,1.4,INK);dotc(27,-71,1.4,INK);stroke([[14,-64],[34,-59]],INK,2.5);}
+  scrib(ell(-50,-14,17,17),INK,4,.95);scrib(ell(52,-14,17,17),INK,4,.95);dotc(-50,-14,6,"#B5B9C4");dotc(52,-14,6,"#B5B9C4");
+  dotc(88,-40,6,"#FFE66B");dotc(-90,-40,5,RED);g.restore();}
+function bubble(x,y,w,h,txt,size){stroke([[x-w*.18,y+h*.42],[x-w*.34,y+h*.95],[x-w*.02,y+h*.46]],INK,3);scrib(ell(x,y,w/2,h/2),"#FFFFFF",6,.97);stroke(ell(x,y,w/2,h/2),INK,3,true);label(txt,x,y+2,size,RED,0,"center");}
+function night(){R();if(vis()){D.g.fillStyle=NAVY;D.g.fillRect(0,0,600,420);}scrib(rect(0,0,600,420),"#2C3A78",6,.4);}
+function stars(t){[[140,40],[220,90],[300,30],[380,70],[560,40],[480,110],[40,150]].forEach(([x,y],i)=>{const s=4+2*Math.sin(t*3+i);stroke([[x-s,y],[x+s,y]],"#FFF2A8",2.5);stroke([[x,y-s],[x,y+s]],"#FFF2A8",2.5);});}
+function moon(x,y){scrib(ell(x,y,26,26),"#FFF2A8",5,.9);stroke(ell(x,y,26,26),"#E8D27A",2.5,true);}
+function houses(lit){[[330,140,110],[450,170,130]].forEach(([x,y,w])=>{scrib(rect(x,y,w,300-y),"#2A3155",6,.9);scrib([[x-8,y],[x+w/2,y-40],[x+w+8,y]],"#5A2E3A",5,.9);
+  for(let wy=y+18;wy<280;wy+=40)for(let wx=x+14;wx<x+w-24;wx+=36)scrib(rect(wx,wy,20,22),lit&&((wx+wy)%3)?"#F6C85F":"#3B4470",4,.95);});}
+function clock(x,y,rad,t){const shake=(t%3)<1?Math.sin(t*35)*.13:0;const g=D.g;g.save();g.translate(x,y);g.rotate(shake);
+  dotc(-rad*.62,-rad*.92,rad*.3,RED);dotc(rad*.62,-rad*.92,rad*.3,RED);scrib(ell(0,0,rad,rad),"#FFFFFF",5,.95);stroke(ell(0,0,rad,rad),RED,5,true);
+  stroke([[0,0],[0,-rad*.62]],INK,4);stroke([[0,0],[rad*.45,rad*.08]],INK,4);stroke([[-rad*.5,rad*.95],[-rad*.7,rad*1.2]],INK,4);stroke([[rad*.5,rad*.95],[rad*.7,rad*1.2]],INK,4);g.restore();
+  label(shake?"дзынь!":"",x,y+rad+34,30,RED,-.08,"center");}
+function phoneX(x,y,t){const ring=(t%2.4)<1.2,dx=ring?Math.sin(t*50)*3:0;const g=D.g;g.save();g.translate(x+dx,y);g.rotate(.12);
+  scrib(rect(-38,-70,76,140),"#2B2F3A",4,.95);stroke(rect(-38,-70,76,140),INK,3,true);scrib(rect(-30,-58,60,112),ring?"#4FC36A":"#7C8AA8",5,.85);
+  dotc(-8,-10,7,"#FFFFFF");dotc(10,-10,7,"#FFFFFF");stroke(arcP(1,4,12,.1*PI,.9*PI),"#FFFFFF",3);g.restore();
+  if(ring){stroke([[x-55,y-30],[x-66,y-40]],INK,3);stroke([[x-55,y],[x-70,y]],INK,3);stroke([[x+55,y-30],[x+66,y-40]],INK,3);stroke([[x+55,y],[x+70,y]],INK,3);}
+  stroke(ell(x,y,92,92),RED,9,true);stroke([[x-64,y-64],[x+64,y+64]],RED,9);}
+
+/* scenes */
+const SC={
+ cover:t=>{sky();sun(520,80,32,t);grass(360);flower(30,360,PINK);flower(520,362,RED);flower(570,360,BLUE);
+   const h1=[190,262],h2=[310,272+Math.sin(t*2)*2];
+   kid(130,360,1.2,{boy:true,handR:h1,aL:PI*.95-Math.sin(t*4)*.25,name:"Егор"});
+   mom(250,360,1,{handL:h1,handR:h2,name:"мама Наташа"});
+   kid(365,360,.78,{handL:h2,aR:-PI*.22+Math.sin(t*4)*.18,name:"Алиса"});
+   [[60,100],[180,60],[430,150]].forEach(([hx,hy],i)=>heart(hx,hy+Math.sin(t*2+i)*5,12+i*2));},
+ rush:t=>{sky();grass(372);clock(520,110,40,t);const run=t*9;
+   for(let i=0;i<3;i++)stroke([[110-i*10,230+i*28],[30-i*10,230+i*28]],GRAY,3);
+   kid(160,372,.72,{walk:run*1.2,aL:PI*.9,aR:PI*.08});mom(270,372,1,{walk:run,aL:PI*.85+Math.sin(run)*.2,aR:PI*.12-Math.sin(run)*.2,bag:"R"});
+   kid(410,372,1.15,{boy:true,walk:run*1.1,aL:PI*.8,aR:PI*.2});
+   label("бегом-бегом!",80,70,40,RED,-.06);},
+ red:t=>{sky();road(false);tlight(530,298,"red",t);const cx=((t*90)%900)-150;car(cx,404,.75,GREEN);
+   const h1=[200,240],h2=[300,232];kid(160,296,.66,{handR:h1});mom(245,296,.8,{handL:h1,handR:h2});kid(350,296,1.05,{boy:true,handL:h2,aR:-PI*.3});
+   bubble(440,70,130,66,"Стой!",40);},
+ green:t=>{sky();road(false);tlight(520,298,"green",t);const h1=[272,338],h2=[328,326];
+   kid(250,392,.6,{walk:t*7,handR:h1});mom(300,392,.72,{walk:t*6,handL:h1,handR:h2});kid(352,392,.88,{boy:true,walk:t*6.5,handL:h2});const left=Math.sin(t*1.5)>0;
+   stroke([[60,120],[20,120]],left?RED:GRAY,5);stroke([[20,120],[34,108]],left?RED:GRAY,5);stroke([[20,120],[34,132]],left?RED:GRAY,5);label("1. налево",70,120,32,left?RED:GRAY);
+   stroke([[540,190],[580,190]],!left?RED:GRAY,5);stroke([[580,190],[566,178]],!left?RED:GRAY,5);stroke([[580,190],[566,202]],!left?RED:GRAY,5);label("2. направо",530,190,32,!left?RED:GRAY,0,"right");},
+ bus:t=>{sky();sun(540,60,24,t);road(false);
+   stroke([[80,300],[80,180]],"#4A4F5A",6);scrib(rect(56,134,48,46),"#2F5BD3",4,.9);stroke(rect(56,134,48,46),INK,2.5,true);label("А",80,158,36,"#FFFFFF",0,"center");
+   const bx=330+((t*22)%300),B=[[bx,250],[bx+240,250],[bx+240,372],[bx,372]];scrib(B,YELLOW,6,.85);stroke(B,INK,3,true);
+   for(let k=0;k<4;k++)scrib(rect(bx+14+k*54,264,40,42),"#BFE3FA",4,.9);
+   scrib(ell(bx+55,376,18,18),INK,4,.95);scrib(ell(bx+185,376,18,18),INK,4,.95);
+   for(let i=0;i<3;i++)stroke([[bx-18-i*8,282+i*28],[bx-58-i*8,282+i*28]],GRAY,3);
+   const h1=[222,248],h2=[150,252];kid(112,296,.98,{boy:true,handR:h2});kid(180,296,.62,{handL:h2,handR:h1});
+   mom(262,296,.8,{handL:h1,aR:-PI*.12+Math.sin(t*5)*.12,bag:"R"});
+   bubble(200,62,170,62,"Не беги!",36);},
+ speed:t=>{sky();scrib(rect(0,330,600,90),"#A3A7B1",7,.75);const off=(t*420)%120;for(let x=-off;x<600;x+=120)stroke([[x,374],[x+60,374]],"#FFFFFF",5);
+   stroke([[530,330],[530,215]],"#4A4F5A",6);scrib(ell(530,178,40,40),"#FFFFFF",5,.97);stroke(ell(530,178,40,40),RED,9,true);label("40",530,180,42,INK,0,"center");
+   const sh=Math.sin(t*30)*2;car(280,392+sh,1.3,BLUE,{people:true});
+   for(let i=0;i<4;i++)stroke([[130-i*6,300+i*18],[50-i*6,300+i*18]],GRAY,3);
+   const cx=150,cy=165;scrib(arcP(cx,cy,72,PI,PI*2,16).concat([[cx,cy]]),"#FFFFFF",5,.9);stroke(arcP(cx,cy,72,PI,PI*2,16),INK,5);stroke(arcP(cx,cy,64,PI*1.62,PI*1.98,8),RED,8);
+   const a=PI*1.72+Math.sin(t*1.3)*.22;stroke([[cx,cy],[cx+Math.cos(a)*58,cy+Math.sin(a)*58]],RED,5);dotc(cx,cy,8,INK);
+   label("тише, мама!",350,80,46,RED,-.06,"center");},
+ morning:t=>{night();stars(t);moon(520,60);houses(true);road(true);car(560,404,.8,GRAY,{flip:true,lights:380});
+   const gl=.7+.3*Math.sin(t*5);
+   const kidLit=(x,k,ph,boy)=>{const hand=[x+30*k,296-58*k];
+     scrib(rect(x-40*k,296-88*k,18*k,38*k),"#4A5068",3,.9);stroke(rect(x-40*k,296-88*k,18*k,38*k),"#2A3155",2,true);
+     kid(x,296,k,{boy,walk:t*6+ph,coat:boy?"#2F4A3A":"#3B4470",dim:.55,handR:hand});
+     const f=D.fade;D.fade=1;glow(hand[0],hand[1],26*gl+8,.85);stroke(ell(hand[0],hand[1],8*k,5*k),"#FFE66B",4,true);
+     stroke([[x-31*k,296-50*k],[x-31*k,296-40*k]],INK,1.5);heart(x-31*k,296-30*k,8*k,gl);D.fade=f;};
+   mom(380,296,.8,{dim:.3,coat:"#273049",walk:t*5,bag:"R"});kidLit(140,1.1,0,true);kidLit(265,.75,1.5,false);
+   label("нас видно!",150,80,44,"#FFE66B",-.06,"center");},
+ car:t=>{sky();sun(70,80,26,t);scrib(rect(0,360,600,60),"#A3A7B1",7,.75);for(let x=20;x<600;x+=90)stroke([[x,392],[x+45,392]],"#FFFFFF",5);
+   for(let i=0;i<3;i++){const ph=(t*.8+i/3)%1;dotc(110-ph*90,330-ph*20,8+ph*12,"rgba(124,128,140,"+(.5-ph*.45)+")");}
+   car(320+Math.sin(t*3)*4,372,1.9,BLUE,{people:true});label("щёлк!",470,80,44,RED,.1);label("щёлк!",260,70,36,RED,-.12);},
+ phone:t=>{sky();const wx=180,wy=330;stroke([[wx-120,420],[wx-70,wy-60]],BLUE,22);stroke([[wx+120,420],[wx+70,wy-60]],BLUE,22);
+   stroke(ell(wx,wy,100,100),INK,14,true);stroke([[wx-100,wy],[wx+100,wy]],INK,10);stroke([[wx,wy],[wx,wy+100]],INK,10);scrib(ell(wx,wy,22,22),"#555B6B",5,.95);
+   dotc(wx-70,wy-70,15,SKIN);dotc(wx+70,wy-70,15,SKIN);phoneX(440,170,t);label("потом!",440,345,52,RED,-.06,"center");},
+ night:t=>{night();stars(t);moon(80,70);houses(true);road(true);mom(240,298,.8,{walk:t*5,dim:.22,coat:"#273049",bag:"R"});
+   car(560-((t*30)%100),404,.8,GRAY,{flip:true,lights:380});bubble(470,170,80,62,"?",48);},
+ heart:t=>{night();stars(t);moon(80,70);houses(true);road(true);mom(240,298,.8,{dim:.5,coat:"#273049",bag:"R",heart:true,glow:.85+.15*Math.sin(t*5)});
+   car(480,404,.8,GRAY,{flip:true,lights:380});bubble(500,160,120,64,"Вижу!",36);},
+ home:t=>{scrib(rect(0,0,600,420),"#FCE3B0",8,.55);scrib(rect(0,330,600,90),"#C98E5A",7,.7);
+   scrib(rect(40,60,120,110),NAVY,5,.9);stroke(rect(40,60,120,110),"#FFFFFF",5,true);dotc(120,90,12,"#FFF2A8");
+   stroke([[470,0],[470,70]],INK,3);scrib([[440,70],[500,70],[515,110],[425,110]],ORANGE,5,.85);glow(470,140,90,.45);
+   scrib(rect(270,70,70,56),"#FFFFFF",5,.9);stroke(rect(270,70,70,56),BROWN,4,true);heart(305,100,12);
+   mom(290,368,1.05,{handR:[350,262],handL:[235,250]});kid(345,368,.7,{hat:false,coat:"#9EC5F0",handL:[300,262],handR:[370,262]});
+   kid(195,368,1.05,{boy:true,hat:false,coat:"#B5D99C",handR:[262,240],aL:PI*.75});
+   for(let i=0;i<5;i++){const ph=(t*.35+i/5)%1;const f=D.fade;D.fade=1-ph;heart(220+i*45+Math.sin(t+i)*10,320-ph*240,9+(i%3)*3);D.fade=f;}},
+ r0:t=>{grass(140,200);tlight(155,140,"green",t,.6);kid(70,140,.9,{walk:t*6});},
+ r1:t=>{scrib(rect(55,22,90,128),"#8C93A8",6,.8);stroke(rect(55,22,90,128),INK,2.5,true);kid(100,152,.95,{});stroke([[86,72],[120,124]],INK,6);stroke([[114,72],[96,110]],INK,5);scrib(rect(98,104,16,12),"#C9CED8",3,.95);label("щёлк!",160,24,26,RED,.1,"center");},
+ r2:t=>{const g=D.g;g.save();g.translate(100,78);g.scale(.62,.62);phoneX(0,0,t);g.restore();},
+ r3:t=>{R();if(vis()){D.g.fillStyle=NAVY;D.g.fillRect(0,0,200,150);}heart(100,80,24,.75+.25*Math.sin(t*4));},
+ r4:t=>{scrib(rect(0,62,200,88),"#A3A7B1",6,.75);for(let i=0;i<4;i++)scrib(rect(50,68+i*20,100,10),"#FFFFFF",4,.95);const hold=[100,95];mom(78,140,.5,{handR:hold,walk:t*5});kid(122,140,.5,{handL:hold,walk:t*6});}
+};
+
+/* pages */
+const pages=[];
+document.querySelectorAll("canvas.draw").forEach((cv,i)=>{const sc=cv.dataset.scene||cv.closest(".sheet").dataset.scene;if(!SC[sc])return;
+  const W=+cv.getAttribute("width"),H=+cv.getAttribute("height"),dpr=Math.min(window.devicePixelRatio||1,2);cv.width=W*dpr;cv.height=H*dpr;
+  const pg={cv,g:cv.getContext("2d"),W,H,dpr,fn:SC[sc],seed:i+3,call:0,count:0,limit:Infinity,total:200,fade:1,visible:true,replay:null,lastScratch:0};
+  pages.push(pg);cv.addEventListener("click",()=>{if(!cv.classList.contains("mini"))replay(pg);});});
+function draw(pg,now){D=pg;pg.call=0;pg.count=0;pg.fade=1;const g=pg.g;g.setTransform(pg.dpr,0,0,pg.dpr,0,0);g.globalAlpha=1;g.fillStyle="#FFFEFB";g.fillRect(0,0,pg.W,pg.H);
+  if(pg.replay){const p=(now-pg.replay.start)/pg.replay.dur;if(p>=1){pg.replay=null;pg.limit=Infinity;sfx.chime();}else{pg.limit=Math.floor(pg.total*p);if(now-pg.lastScratch>110){pg.lastScratch=now;sfx.scratch();}}}
+  const t=reduce?2:now/1000;pg.fn(t);if(pg.limit===Infinity)pg.total=pg.count;}
+function replay(pg){audio();pg.replay={start:performance.now(),dur:2600};pg.limit=0;pg.visible=true;}
+if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{const pg=pages.find(p=>p.cv===e.target);if(pg)pg.visible=e.isIntersecting;}),{rootMargin:"100px"});pages.forEach(p=>io.observe(p.cv));}
+function loop(now){pages.forEach(pg=>{if(pg.visible||pg.replay)draw(pg,now);});requestAnimationFrame(loop);}
+const now0=performance.now();pages.forEach(pg=>draw(pg,now0));requestAnimationFrame(loop);
+if(document.fonts&&document.fonts.load)document.fonts.load("700 40px Caveat").then(()=>pages.forEach(pg=>draw(pg,performance.now()))).catch(()=>{});
+
+/* sound */
+let ac=null,soundOn=true;
+function audio(){if(ac){if(ac.state==="suspended")ac.resume();return ac;}try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){ac=null;}return ac;}
+function tone(f,d,v,when=0){if(!ac||!soundOn)return;const t0=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(v,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+d+.05);}
+const sfx={
+  scratch(){if(!ac||!soundOn)return;const d=.07,n=Math.floor(ac.sampleRate*d),b=ac.createBuffer(1,n,ac.sampleRate),ch=b.getChannelData(0);for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);
+    const s=ac.createBufferSource();s.buffer=b;const f=ac.createBiquadFilter();f.type="bandpass";f.frequency.value=2500+Math.random()*1500;f.Q.value=2;const g=ac.createGain();g.gain.value=.12;s.connect(f);f.connect(g);g.connect(ac.destination);s.start();},
+  chime(){[1046,1318,1568,2093].forEach((f,k)=>tone(f,1,.05,k*.08));}
+};
+const sndBtn=document.getElementById("snd");
+sndBtn.addEventListener("click",()=>{soundOn=!soundOn;sndBtn.textContent="Звук: "+(soundOn?"включён":"выключен");sndBtn.setAttribute("aria-pressed",soundOn);if(!soundOn)hush();else audio();});
+
+/* reading aloud */
+const canSpeak="speechSynthesis" in window;let ruVoice=null,voices=[];
+const vsel=document.getElementById("voiceSel"),vlab=document.getElementById("vlab");
+/* most natural voices first: Edge "Natural/Online", then Google, then female system voices, male last */
+function rank(v){const n=v.name;let r=/natural|online|neural/i.test(n)?0:/google/i.test(n)?1:2;if(/dmitry|pavel|maxim|male/i.test(n))r+=.5;return r;}
+function pick(){try{voices=speechSynthesis.getVoices().filter(v=>/^ru/i.test(v.lang)).sort((a,b)=>rank(a)-rank(b));}catch(e){voices=[];}
+  let saved=null;try{saved=localStorage.getItem("knizhka-voice");}catch(e){}
+  ruVoice=voices.find(v=>v.name===saved)||voices[0]||null;
+  vsel.innerHTML="";voices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name.replace(/^(Microsoft|Google)\s+/,"").replace(/\s*-\s*Russian.*$/i,"");vsel.appendChild(o);});
+  vlab.hidden=!voices.length;if(ruVoice)vsel.value=ruVoice.name;}
+vsel.addEventListener("change",()=>{ruVoice=voices.find(v=>v.name===vsel.value)||null;try{localStorage.setItem("knizhka-voice",vsel.value);}catch(e){}hush();say("Это моя мама. Она самая быстрая на свете.");});
+if(canSpeak){pick();try{speechSynthesis.onvoiceschanged=pick;}catch(e){}}else vlab.hidden=true;
+let player=null;
+function hush(){if(canSpeak)try{speechSynthesis.cancel();}catch(e){}if(player){player.pause();player=null;}}
+function playRec(b){return new Promise(res=>{hush();const url=URL.createObjectURL(b),a=new Audio(url);player=a;
+  const done=()=>{URL.revokeObjectURL(url);if(player===a)player=null;setTimeout(res,300);};a.onended=done;a.onerror=done;a.onpause=done;a.play().catch(done);});}
+function say(txt,i){if(i!=null&&recs[i]&&soundOn)return playRec(recs[i]);
+  return new Promise(res=>{const fallback=setTimeout(res,txt.length*75+1200);if(!canSpeak||!soundOn)return;
+  try{hush();const u=new SpeechSynthesisUtterance(txt);u.lang="ru-RU";if(ruVoice)u.voice=ruVoice;u.pitch=1.05;u.rate=1.1;
+    u.onend=()=>{clearTimeout(fallback);setTimeout(res,300);};speechSynthesis.speak(u);}catch(e){}});}
+const textOf=sheet=>sheet.dataset.say||[...sheet.querySelectorAll("h1,.text")].map(e=>e.textContent).join(". ");
+
+/* own voice recordings, kept in this browser (IndexedDB) */
+const refreshers={},recs={},sheets=[...document.querySelectorAll(".sheet.story")],ctl=[];
+let db=null,mr=null;
+function idb(){return new Promise(res=>{try{const r=indexedDB.open("knizhka-mama",1);r.onupgradeneeded=()=>r.result.createObjectStore("v");r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);}catch(e){res(null);}});}
+async function dbDo(fn){try{db=db||await idb();if(db)fn(db.transaction("v","readwrite").objectStore("v"));}catch(e){}}
+function mark(i){const c=ctl[i];if(!c)return;const has=!!recs[i];c.rec.classList.remove("rec");
+  c.rec.textContent=has?"🎙 Перезаписать":"🎙 Записать свой голос";c.del.hidden=!has;if(c.say)c.say.textContent=has?"▶ Послушать запись":"Прочитать вслух";}
+async function toggleRec(i,btn,refresh,onStart){btn=btn||ctl[i].rec;refresh=refresh||(()=>mark(i));
+  if(mr){const was=mr.idx;mr.stop();if(was===i)return;}
+  hush();let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});}
+  catch(e){alert("Не получилось включить микрофон. Нажмите на значок слева от адреса страницы, разрешите микрофон и попробуйте ещё раз.");return;}
+  const chunks=[],m=new MediaRecorder(stream);m.idx=i;mr=m;
+  m.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  m.onstop=()=>{stream.getTracks().forEach(t=>t.stop());if(chunks.length){const b=new Blob(chunks,{type:m.mimeType||"audio/webm"});recs[i]=b;dbDo(s=>s.put(b,i));}if(mr===m)mr=null;refresh();};
+  m.start();btn.textContent="⏹ Остановить запись";btn.classList.add("rec");if(onStart)onStart();}
+sheets.forEach((sh,i)=>{const row=sh.querySelector(".row");const rec=document.createElement("button"),del=document.createElement("button");
+  rec.type=del.type="button";del.className="del";del.textContent="✕ Стереть запись";del.hidden=true;
+  rec.addEventListener("click",()=>toggleRec(i));
+  del.addEventListener("click",()=>{if(!confirm("Стереть запись голоса на этой странице?"))return;delete recs[i];dbDo(s=>s.delete(i));mark(i);});
+  row.appendChild(rec);row.appendChild(del);ctl[i]={rec,del,say:sh.querySelector(".say")};mark(i);});
+/* baked copy: voices and names are inside the file, page is in "viewer" mode */
+const BK=window.BAKED;
+function d2b(u){const [h,b64]=u.split(","),bin=atob(b64),a=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)a[k]=bin.charCodeAt(k);return new Blob([a],{type:(h.match(/data:([^;]+)/)||[])[1]||"audio/webm"});}
+if(BK){Object.keys(BK.recs||{}).forEach(k=>{try{recs[k]=d2b(BK.recs[k]);}catch(e){}});
+  ctl.forEach((c,i)=>{c.rec.hidden=true;c.del.hidden=true;mark(i);c.rec.hidden=true;c.del.hidden=true;});
+  document.getElementById("saveBtn").hidden=true;
+  /* viewer copy: no tech text, no voice picker — only our voices */
+  document.querySelector(".bar p").remove();document.getElementById("vlab").remove();
+  const bar=document.querySelector(".bar");bar.style.justifyContent="center";bar.style.boxShadow="none";bar.style.background="transparent";
+  const sm=document.querySelector(".sheet:last-of-type .small");if(sm)sm.textContent="Конкурс социальной рекламы Каменской Госавтоинспекции «Мамочка, не торопись!» ко Дню матери. Озвучили Егор, Алиса и мама Наташа.";}
+document.getElementById("saveBtn").addEventListener("click",async()=>{
+  const b2d=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b);});
+  const out={recs:{},names:{}};for(const k of Object.keys(recs))out.recs[k]=await b2d(recs[k]);
+  ["fName","fAge","fMom"].forEach(id=>out.names[id]=document.getElementById(id).textContent);
+  if(!Object.keys(out.recs).length&&!confirm("Голос ещё не записан ни на одной странице. Сохранить книжку с компьютерным голосом?"))return;
+  const TAG="<scr"+"ipt id=\"baked\">",END="</scr"+"ipt>";
+  let src=SRC;const bi=src.indexOf(TAG);if(bi>=0)src=src.slice(0,bi)+src.slice(src.indexOf(END,bi)+END.length);
+  const inj=TAG+"window.BAKED="+JSON.stringify(out).replace(/</g,"\\u003c")+END;
+  const html=src.replace("<div class=\"wrap\" id=\"book\">",inj+"<div class=\"wrap\" id=\"book\">");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([html],{type:"text/html"}));a.download="mamochka-ne-toropis.html";document.body.appendChild(a);a.click();a.remove();
+  alert("Готово! Файл «mamochka-ne-toropis.html» сохранён в «Загрузки». В нём уже есть ваш голос, его можно отправлять и выкладывать.");});
+if(!BK)dbDo(s=>{const k=s.getAllKeys();k.onsuccess=()=>k.result.forEach(key=>{const g=s.get(key);g.onsuccess=()=>{if(g.result){recs[key]=g.result;(refreshers[key]||(()=>mark(key)))();}};});});
+if(!(navigator.mediaDevices&&window.MediaRecorder))ctl.forEach(c=>c.rec.hidden=true);
+
+document.querySelectorAll(".sheet").forEach(sh=>{const sb=sh.querySelector(".say"),ab=sh.querySelector(".again"),i=sheets.indexOf(sh);
+  if(sb)sb.addEventListener("click",()=>{audio();say(textOf(sh),i<0?null:i);});
+  if(ab)ab.addEventListener("click",()=>{const pg=pages.find(p=>p.cv===sh.querySelector("canvas.draw"));if(pg)replay(pg);});});
+
+/* "make the right choice" game: [question, [option, correct?], ..., good feedback, bad feedback] */
+const QUIZ={
+ red:{q:"Горит красный, а мама спешит. Что нужно сделать?",o:[["Быстро перебежать, пока машин нет",0],["Взять маму за руку и подождать зелёный",1],["Побежать, если очень опаздываем",0]],
+   good:"Правильно! Две минуты ничего не решают.",bad:"Нет! Даже если машин не видно, на красный идти нельзя."},
+ bus:{q:"Автобус уезжает. Как поступить маме?",o:[["Бежать за ним через дорогу",0],["Стучать в дверь, чтобы он остановился",0],["Спокойно подождать следующий автобус",1]],
+   good:"Верно! Следующий придёт скоро, а мама у нас одна.",bad:"Опасно! Бегущего человека водитель может не заметить."},
+ car:{q:"Садимся в машину. Что нужно сделать сначала?",o:[["Пристегнуть детей в автокресла и пристегнуться самой",1],["Сразу ехать: тут совсем недалеко",0],["Посадить ребёнка на колени",0]],
+   good:"Щёлк-щёлк! Молодец, теперь можно ехать.",bad:"Нет! Пристёгиваться нужно всегда, даже если ехать совсем близко."},
+ phone:{q:"Мама за рулём, звонит телефон. Что делать?",o:[["Быстро ответить, это же секундочка",0],["Написать сообщение одной рукой",0],["Не отвечать, перезвонить после остановки",1]],
+   good:"Правильно! Нет ничего важнее жизни.",bad:"Нет! Даже секунда без взгляда на дорогу — это опасно."},
+ speed:{q:"Мы опаздываем, а на знаке «40». Как ехать?",o:[["Чуть быстрее, раз опаздываем",0],["Не больше 40, спокойно",1],["Обгонять всех подряд",0]],
+   good:"Молодец! Лучше чуть позже, но всем вместе.",bad:"Нет! Знак нужно соблюдать, даже когда опаздываешь."},
+ morning:{q:"Зимой утром темно. Что поможет, чтобы нас было видно?",o:[["Тёмная куртка",0],["Идти побыстрее",0],["Светоотражающие браслеты и брелки",1]],
+   good:"Да! Фары светят — и наши светлячки сияют.",bad:"Нет, в темноте водитель так нас не увидит."},
+ night:{q:"Маму в тёмном пальто не видно. Что ей подарить?",o:[["Фонарик, чтобы лежал в сумке",0],["Сердечко-светоотражатель",1],["Тёмный шарф",0]],
+   good:"Правильно! Смотри, что будет дальше.",bad:"Нет! Водителю нужно видеть маму, а светоотражатель сияет в свете фар."}
+};
+const solved=new Set(),tried=new Set(),quizzes=new Map();
+const scoreEl=document.createElement("p");scoreEl.className="score";scoreEl.hidden=true;
+document.querySelector(".sheet:last-of-type .who").after(scoreEl);
+function updScore(){const n=Object.keys(QUIZ).length,first=[...solved].filter(s=>!tried.has(s)).length;scoreEl.hidden=!solved.size;
+  scoreEl.textContent=solved.size===n?"Все "+n+" ситуаций пройдены! С первого раза правильно: "+first+" из "+n+". Ты настоящий помощник для мамы!":"Пройдено ситуаций: "+solved.size+" из "+n;}
+function burst(box,btn){const r=box.getBoundingClientRect(),b=btn.getBoundingClientRect();
+  for(let k=0;k<10;k++){const s=document.createElement("span");s.className="pop";s.textContent=["❤","⭐","💛"][k%3];
+    s.style.left=(b.left-r.left+b.width*Math.random())+"px";s.style.top=(b.top-r.top)+"px";s.style.setProperty("--dx",(Math.random()*120-60)+"px");
+    box.appendChild(s);setTimeout(()=>s.remove(),1400);}}
+sheets.forEach(sh=>{const key=sh.dataset.scene,Q=QUIZ[key];if(!Q)return;
+  const box=document.createElement("div");box.className="quiz";
+  box.innerHTML='<span class="qh">Сделай правильный выбор!</span><p class="q"></p><div class="opts"></div><p class="fb" hidden></p>';
+  box.querySelector(".q").textContent=Q.q;const opts=box.querySelector(".opts"),fb=box.querySelector(".fb");
+  const btns=Q.o.map(([txt,ok])=>{const b=document.createElement("button");b.type="button";b.textContent=txt;opts.appendChild(b);
+    b.addEventListener("click",()=>choose(b,ok,false));return b;});
+  function choose(b,ok,silent){audio();if(solved.has(key))return Promise.resolve();
+    btns.forEach(x=>x.classList.remove("no"));void b.offsetWidth;
+    if(ok){b.classList.add("ok");btns.forEach(x=>x.disabled=x!==b);solved.add(key);fb.className="fb good";fb.textContent="✔ "+Q.good;fb.hidden=false;
+      sfx.chime();burst(box,b);const pg=pages.find(p=>p.cv===sh.querySelector("canvas.draw"));if(pg)replay(pg);updScore();return silent?Promise.resolve():say(Q.good,"g:"+key);}
+    b.classList.add("no");if(!solved.has(key))tried.add(key);fb.className="fb bad";fb.textContent="✘ "+Q.bad+" Попробуй ещё раз!";fb.hidden=false;
+    tone(220,.18,.06);tone(160,.3,.06,.15);return say(Q.bad+" Попробуй ещё раз!","b:"+key);}
+  /* listen to the question */
+  const lq=document.createElement("button");lq.type="button";lq.className="lq";lq.textContent="🔊 Послушать вопрос";
+  lq.addEventListener("click",()=>{audio();say(Q.q,"q:"+key);});box.querySelector(".q").after(lq);
+  /* own-voice recording for question, praise and mistake */
+  const vrow=document.createElement("div");vrow.className="qvoice";vrow.innerHTML="<span>🎙 Озвучить задание своим голосом:</span>";
+  const hint=document.createElement("p");hint.className="qhint";hint.hidden=true;
+  [["q","Вопрос",Q.q],["g","Похвала",Q.good],["b","Ошибка",Q.bad+" Попробуй ещё раз!"]].forEach(([p,lab,txt])=>{
+    const k=p+":"+key,g=document.createElement("span");g.className="qv";
+    const mk=t=>{const b=document.createElement("button");b.type="button";b.textContent=t;return b;},r=mk(""),pl=mk("▶"),dl=mk("✕");
+    pl.title="Послушать";dl.title="Стереть запись";
+    const refresh=()=>{const has=!!recs[k];r.classList.remove("rec");r.textContent=(has?"✔ ":"🎙 ")+lab;pl.hidden=dl.hidden=!has;if(!mr)hint.hidden=true;};
+    r.addEventListener("click",()=>toggleRec(k,r,refresh,()=>{hint.textContent="Читайте вслух: «"+txt+"» — и нажмите «⏹ Остановить запись»";hint.hidden=false;}));
+    pl.addEventListener("click",()=>{audio();say(txt,k);});
+    dl.addEventListener("click",()=>{if(!confirm("Стереть эту запись?"))return;delete recs[k];dbDo(s=>s.delete(k));refresh();});
+    refreshers[k]=refresh;refresh();g.append(r,pl,dl);vrow.appendChild(g);});
+  box.append(vrow,hint);
+  if(BK||!(navigator.mediaDevices&&window.MediaRecorder))vrow.hidden=true;
+  sh.querySelector(".row").before(box);
+  /* cartoon mode: ask the question, then wait until the viewer picks the right answer themselves */
+  quizzes.set(sh,{Q,auto:async()=>{if(solved.has(key))return;await say(Q.q,"q:"+key);
+    box.classList.add("waiting");while(auto&&!solved.has(key))await wait(300);box.classList.remove("waiting");
+    while(auto&&player)await wait(200);}});});
+
+/* show as a cartoon */
+const autoBtn=document.getElementById("auto");let auto=false;const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function run(){auto=true;autoBtn.textContent="■ Остановить";audio();
+  for(const sh of document.querySelectorAll(".sheet.story")){if(!auto)break;sh.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});await wait(800);if(!auto)break;
+    const pgs=pages.filter(p=>sh.contains(p.cv));pgs.forEach(replay);await wait(pgs.length?2800:300);if(!auto)break;await say(textOf(sh),sheets.indexOf(sh));if(!auto)break;
+    const qz=quizzes.get(sh);if(qz){const box=sh.querySelector(".quiz");box.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});await wait(600);if(!auto)break;await qz.auto();if(!auto)break;}
+    await wait(500);}
+  auto=false;autoBtn.textContent="▶ Показать как мультик";}
+autoBtn.addEventListener("click",()=>{if(auto){auto=false;hush();autoBtn.textContent="▶ Показать как мультик";}else run();});
+
+/* names */
+["fName","fAge","fMom"].forEach(id=>{const el=document.getElementById(id);if(BK&&BK.names){el.textContent=BK.names[id]||"";el.removeAttribute("contenteditable");el.className="";return;}try{const v=localStorage.getItem("knizhka-"+id);if(v)el.textContent=v;}catch(e){}
+  el.addEventListener("input",()=>{try{localStorage.setItem("knizhka-"+id,el.textContent);}catch(e){}});});
+})();
+</script>
+
+</body></html>
