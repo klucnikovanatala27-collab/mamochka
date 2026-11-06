@@ -332,7 +332,7 @@ function playRec(b){return new Promise(res=>{hush();const url=URL.createObjectUR
   const done=()=>{URL.revokeObjectURL(url);if(player===a)player=null;setTimeout(res,300);};a.onended=done;a.onerror=done;a.onpause=done;a.play().catch(done);});}
 function say(txt,i){if(i!=null&&recs[i]&&soundOn)return playRec(recs[i]);
   return new Promise(res=>{const fallback=setTimeout(res,txt.length*75+1200);if(!canSpeak||!soundOn)return;
-  try{hush();const u=new SpeechSynthesisUtterance(txt);u.lang="ru-RU";if(ruVoice)u.voice=ruVoice;u.pitch=1.05;u.rate=.9;
+  try{hush();const u=new SpeechSynthesisUtterance(txt);u.lang="ru-RU";if(ruVoice)u.voice=ruVoice;u.pitch=1.05;u.rate=1.1;
     u.onend=()=>{clearTimeout(fallback);setTimeout(res,300);};speechSynthesis.speak(u);}catch(e){}});}
 const textOf=sheet=>sheet.dataset.say||[...sheet.querySelectorAll("h1,.text")].map(e=>e.textContent).join(". ");
 
